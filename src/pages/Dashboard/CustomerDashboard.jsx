@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import pb from '../../lib/pb';
 
 export default function CustomerDashboard() {
   const { user, logout } = useAuth();
@@ -18,9 +18,12 @@ export default function CustomerDashboard() {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const config = { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } };
-      const res = await axios.get('/api/orders/my-orders', config);
-      setOrders(res.data);
+      const records = await pb.collection('orders').getFullList({
+        filter: `customer="${pb.authStore.model?.id}"`,
+        sort: '-created',
+        expand: 'orderItems,orderItems.product',
+      });
+      setOrders(records);
     } catch (err) {
       console.error(err);
     }
@@ -36,7 +39,7 @@ export default function CustomerDashboard() {
           <h2 style={{ fontFamily: 'var(--font-heading)', margin: 0, color: '#000' }}>My Account</h2>
           <p style={{ color: '#666', fontSize: '0.9rem', marginTop: '0.5rem' }}>{user.name}</p>
         </div>
-        
+
         <nav className="dashboard-nav">
           <button onClick={() => setActiveTab('orders')} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '1rem', background: activeTab === 'orders' ? '#e9ecef' : 'transparent', color: '#000', border: 'none', borderRadius: '8px', cursor: 'pointer', textAlign: 'left', fontWeight: activeTab === 'orders' ? 600 : 400 }}>
             Order History
@@ -76,23 +79,23 @@ export default function CustomerDashboard() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid #eaeaea' }}>
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
-                          <span style={{ fontFamily: 'monospace', color: '#666', fontSize: '1.1rem' }}>Order #{o.id.split('-')[0]}</span>
+                          <span style={{ fontFamily: 'monospace', color: '#666', fontSize: '1.1rem' }}>Order #{o.id?.slice(0, 8)}</span>
                           <span style={{ padding: '0.3rem 0.8rem', background: o.status === 'SHIPPED' ? '#ebfbee' : '#fff3bf', color: o.status === 'SHIPPED' ? '#2b8a3e' : '#e67700', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 600 }}>{o.status}</span>
                         </div>
-                        <p style={{ color: '#666', margin: 0 }}>Placed on {new Date(o.createdAt).toLocaleDateString()}</p>
+                        <p style={{ color: '#666', margin: 0 }}>Placed on {new Date(o.created).toLocaleDateString()}</p>
                       </div>
                       <div style={{ textAlign: 'right' }}>
                         <p style={{ color: '#666', margin: '0 0 0.5rem 0' }}>Total Amount</p>
-                        <p style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0, color: '#000' }}>₹{o.totalAmount.toLocaleString()}</p>
+                        <p style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0, color: '#000' }}>₹{o.totalAmount?.toLocaleString()}</p>
                       </div>
                     </div>
-                    
+
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
-                      {o.orderItems.map(item => (
+                      {(o.expand?.orderItems || []).map(item => (
                         <div key={item.id} style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                           <div style={{ width: '60px', height: '60px', background: '#f8f9fa', border: '1px solid #eaeaea', borderRadius: '8px' }}></div>
                           <div>
-                            <p style={{ margin: '0 0 0.2rem 0', fontWeight: 600, color: '#000' }}>{item.product.title}</p>
+                            <p style={{ margin: '0 0 0.2rem 0', fontWeight: 600, color: '#000' }}>{item.expand?.product?.title}</p>
                             <p style={{ margin: 0, color: '#666', fontSize: '0.9rem' }}>Qty: {item.quantity} × ₹{item.price}</p>
                           </div>
                         </div>

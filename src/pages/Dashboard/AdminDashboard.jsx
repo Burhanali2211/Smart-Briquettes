@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
-
-const api = () => ({ headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+import pb from '../../lib/pb';
 
 const NAV = [
   { id: 'overview', label: 'Overview', icon: (
@@ -146,24 +144,24 @@ export default function AdminDashboard() {
     setLoading(true);
     try {
       if (tab === 'overview' || tab === 'products') {
-        const r = await axios.get('/api/products/my-products', api());
-        setProducts(r.data);
-        setStats(s => ({ ...s, products: r.data.length }));
+        const records = await pb.collection('products').getFullList({ sort: '-created' });
+        setProducts(records);
+        setStats(s => ({ ...s, products: records.length }));
       }
       if (tab === 'overview' || tab === 'orders') {
-        const r = await axios.get('/api/orders/incoming', api());
-        setOrders(r.data);
-        const revenue = r.data.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
-        setStats(s => ({ ...s, orders: r.data.length, revenue }));
+        const records = await pb.collection('orders').getFullList({ sort: '-created', expand: 'customer,orderItems,orderItems.product' });
+        setOrders(records);
+        const revenue = records.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+        setStats(s => ({ ...s, orders: records.length, revenue }));
       }
       if (tab === 'users') {
-        const r = await axios.get('/api/users', api()).catch(() => ({ data: [] }));
-        setUsers(r.data);
-        setStats(s => ({ ...s, users: r.data.length }));
+        const records = await pb.collection('users').getFullList({ sort: 'name' }).catch(() => []);
+        setUsers(records);
+        setStats(s => ({ ...s, users: records.length }));
       }
       if (tab === 'settings') {
-        const r = await axios.get('/api/auth/me', api());
-        setProfile({ bio: r.data.bio || '', location: r.data.location || '', profileImage: r.data.profileImage || '', coverImage: r.data.coverImage || '' });
+        const m = pb.authStore.model || {};
+        setProfile({ bio: m.bio || '', location: m.location || '', profileImage: m.profileImage || '', coverImage: m.coverImage || '' });
       }
     } catch (err) {
       console.error(err);
@@ -181,7 +179,7 @@ export default function AdminDashboard() {
 
   const openEdit = (p) => {
     setEditId(p.id);
-    setProduct({ title: p.title, description: p.description, price: String(p.price), stock: String(p.stock), category: p.category || 'Briquettes', imageUrl: p.imageUrl || '' });
+    setProduct({ title: p.title, description: p.description, price: String(p.price), stock: String(p.stock), category: p.category || 'Briquettes', imageUrl: p.image ? pb.files.getUrl(p, p.image) : '' });
     setImgFile(null);
     setShowForm(true);
   };
@@ -190,17 +188,18 @@ export default function AdminDashboard() {
     e.preventDefault();
     setSaving(true);
     try {
-      let imageUrl = product.imageUrl;
-      if (imgFile) {
-        const fd = new FormData();
-        fd.append('image', imgFile);
-        const up = await axios.post('/api/upload', fd, { headers: { 'Content-Type': 'multipart/form-data', ...api().headers } });
-        imageUrl = up.data.imageUrl;
-      }
+      const fd = new FormData();
+      fd.append('title', product.title);
+      fd.append('description', product.description);
+      fd.append('price', product.price);
+      fd.append('stock', product.stock);
+      fd.append('category', product.category);
+      fd.append('seller', pb.authStore.model?.id);
+      if (imgFile) fd.append('image', imgFile);
       if (editId) {
-        await axios.put(`/api/products/${editId}`, { ...product, imageUrl }, api());
+        await pb.collection('products').update(editId, fd);
       } else {
-        await axios.post('/api/products', { ...product, imageUrl }, api());
+        await pb.collection('products').create(fd);
       }
       setShowForm(false);
       setEditId(null);
@@ -214,13 +213,13 @@ export default function AdminDashboard() {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this product?')) return;
-    await axios.delete(`/api/products/${id}`, api()).catch(() => alert('Error deleting'));
+    await pb.collection('products').delete(id).catch(() => alert('Error deleting'));
     fetchTab();
   };
 
   // ── Order status ──────────────────────────────────────────────────────────
   const updateOrderStatus = async (id, status) => {
-    await axios.put(`/api/orders/${id}/status`, { status }, api()).catch(() => alert('Error updating'));
+    await pb.collection('orders').update(id, { status }).catch(() => alert('Error updating'));
     fetchTab();
   };
 
@@ -229,16 +228,13 @@ export default function AdminDashboard() {
     e.preventDefault();
     setSaving(true);
     try {
-      let updated = { ...profile };
-      for (const key of ['profile', 'cover']) {
-        if (profFiles[key]) {
-          const fd = new FormData();
-          fd.append('image', profFiles[key]);
-          const r = await axios.post('/api/upload', fd, api());
-          updated[key === 'profile' ? 'profileImage' : 'coverImage'] = r.data.imageUrl;
-        }
-      }
-      await axios.put('/api/users/profile', updated, api());
+      const fd = new FormData();
+      fd.append('bio', profile.bio);
+      fd.append('location', profile.location);
+      if (profFiles.profile) fd.append('profileImage', profFiles.profile);
+      if (profFiles.cover) fd.append('coverImage', profFiles.cover);
+      await pb.collection('users').update(pb.authStore.model?.id, fd);
+      await pb.collection('users').authRefresh();
       setProfFiles({ profile: null, cover: null });
       alert('Settings saved!');
       fetchTab();
@@ -336,9 +332,9 @@ export default function AdminDashboard() {
             <tbody>
               {orders.slice(0, 5).map((o, i) => (
                 <tr key={o.id} style={{ borderTop: '1px solid #f5f5f5', background: i % 2 === 0 ? '#fff' : '#fafafa' }}>
-                  <td style={{ padding: '0.85rem 1.5rem', fontFamily: 'monospace', color: 'var(--text-muted)', fontSize: '0.8rem' }}>#{o.id?.split('-')[0]}</td>
-                  <td style={{ padding: '0.85rem 1.5rem', fontWeight: 500 }}>{o.customer?.name || '—'}</td>
-                  <td style={{ padding: '0.85rem 1.5rem', color: 'var(--text-muted)' }}>{o.items?.length || o.orderItems?.length || 0} item(s)</td>
+                  <td style={{ padding: '0.85rem 1.5rem', fontFamily: 'monospace', color: 'var(--text-muted)', fontSize: '0.8rem' }}>#{o.id?.slice(0, 8)}</td>
+                  <td style={{ padding: '0.85rem 1.5rem', fontWeight: 500 }}>{o.expand?.customer?.name || '—'}</td>
+                  <td style={{ padding: '0.85rem 1.5rem', color: 'var(--text-muted)' }}>{o.expand?.orderItems?.length || 0} item(s)</td>
                   <td style={{ padding: '0.85rem 1.5rem', fontWeight: 600 }}>₹{o.totalAmount?.toLocaleString() || '—'}</td>
                   <td style={{ padding: '0.85rem 1.5rem' }}>
                     <span style={{ padding: '0.25rem 0.7rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600, ...STATUS_COLORS[o.status] || STATUS_COLORS.PENDING }}>
@@ -364,7 +360,7 @@ export default function AdminDashboard() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '1px', background: '#f0f0f0' }}>
           {products.slice(0, 6).map(p => (
             <div key={p.id} style={{ background: '#fff', padding: '1rem' }}>
-              {p.imageUrl && <img src={p.imageUrl} alt={p.title} style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px', marginBottom: '0.6rem' }} />}
+              {p.image && <img src={pb.files.getUrl(p, p.image)} alt={p.title} style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px', marginBottom: '0.6rem' }} />}
               <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.2rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.title}</div>
               <div style={{ fontSize: '0.8rem', color: 'var(--brand-rust)', fontWeight: 700 }}>₹{p.price?.toLocaleString()}</div>
             </div>
@@ -431,8 +427,8 @@ export default function AdminDashboard() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
         {filteredProducts.map(p => (
           <div key={p.id} style={{ background: '#fff', border: '1px solid #eaeaea', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 1px 8px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column' }}>
-            {p.imageUrl
-              ? <img src={p.imageUrl} alt={p.title} style={{ width: '100%', height: '180px', objectFit: 'cover' }} />
+            {p.image
+              ? <img src={pb.files.getUrl(p, p.image)} alt={p.title} style={{ width: '100%', height: '180px', objectFit: 'cover' }} />
               : <div style={{ width: '100%', height: '180px', background: 'var(--brand-rust-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--brand-rust)', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '0.8rem', letterSpacing: '0.05em' }}>NO IMAGE</div>
             }
             <div style={{ padding: '1.1rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
@@ -485,14 +481,14 @@ export default function AdminDashboard() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem', flexWrap: 'wrap' }}>
-                  <span style={{ fontFamily: 'monospace', fontSize: '0.85rem', color: 'var(--text-muted)' }}>#{o.id?.split('-')[0]}</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: '0.85rem', color: 'var(--text-muted)' }}>#{o.id?.slice(0, 8)}</span>
                   <span style={{ padding: '0.25rem 0.7rem', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 600, ...STATUS_COLORS[o.status] || STATUS_COLORS.PENDING }}>{o.status}</span>
                 </div>
                 <div style={{ fontSize: '0.875rem', color: 'var(--text-main)', marginBottom: '0.2rem' }}>
-                  <strong>Customer:</strong> {o.customer?.name || '—'}
+                  <strong>Customer:</strong> {o.expand?.customer?.name || '—'}
                 </div>
                 <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                  {(o.items || o.orderItems || []).map(i => `${i.quantity}× ${i.product?.title}`).join(', ')}
+                  {(o.expand?.orderItems || []).map(i => `${i.quantity}× ${i.expand?.product?.title}`).join(', ')}
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
@@ -549,7 +545,7 @@ export default function AdminDashboard() {
                   }}>{u.role}</span>
                 </td>
                 <td style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)' }}>
-                  {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}
+                  {u.created ? new Date(u.created).toLocaleDateString() : '—'}
                 </td>
               </tr>
             ))}
@@ -571,12 +567,12 @@ export default function AdminDashboard() {
           <div>
             <FLabel>Profile Avatar</FLabel>
             <input type="file" accept="image/*" onChange={e => setProfFiles({ ...profFiles, profile: e.target.files[0] })} style={{ width: '100%', padding: '0.65rem 1rem', border: '1.5px solid #e5e5e5', borderRadius: '10px', fontFamily: 'var(--font-sans)', fontSize: '0.875rem', background: '#fafafa', boxSizing: 'border-box' }} />
-            {profile.profileImage && <img src={profile.profileImage} alt="avatar" style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover', marginTop: '0.6rem', border: '2px solid var(--brand-rust-light)' }} />}
+            {profile.profileImage && <img src={pb.files.getUrl(pb.authStore.model || {}, profile.profileImage)} alt="avatar" style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover', marginTop: '0.6rem', border: '2px solid var(--brand-rust-light)' }} />}
           </div>
           <div>
             <FLabel>Cover Image</FLabel>
             <input type="file" accept="image/*" onChange={e => setProfFiles({ ...profFiles, cover: e.target.files[0] })} style={{ width: '100%', padding: '0.65rem 1rem', border: '1.5px solid #e5e5e5', borderRadius: '10px', fontFamily: 'var(--font-sans)', fontSize: '0.875rem', background: '#fafafa', boxSizing: 'border-box' }} />
-            {profile.coverImage && <img src={profile.coverImage} alt="cover" style={{ width: '100%', height: '100px', borderRadius: '10px', objectFit: 'cover', marginTop: '0.6rem', border: '1px solid #eaeaea' }} />}
+            {profile.coverImage && <img src={pb.files.getUrl(pb.authStore.model || {}, profile.coverImage)} alt="cover" style={{ width: '100%', height: '100px', borderRadius: '10px', objectFit: 'cover', marginTop: '0.6rem', border: '1px solid #eaeaea' }} />}
           </div>
           <div><FLabel>Location</FLabel><FInput type="text" placeholder="e.g. Delhi, India" value={profile.location} onChange={e => setProfile({ ...profile, location: e.target.value })} /></div>
           <div><FLabel>Bio</FLabel><FTextarea placeholder="Tell buyers about your business…" value={profile.bio} onChange={e => setProfile({ ...profile, bio: e.target.value })} /></div>

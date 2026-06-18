@@ -1,6 +1,5 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
+import { createContext, useContext, useState } from 'react';
+import { MOCK_AUTH_USERS } from '../lib/mockData';
 
 const AuthContext = createContext();
 
@@ -9,71 +8,34 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        // Check if token is expired
-        if (decoded.exp * 1000 < Date.now()) {
-          logout();
-        } else {
-          setUser(decoded);
-          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        }
-      } catch (err) {
-        logout();
-      }
-    }
-    setLoading(false);
-  }, []);
+  const [user, setUser] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('sb_user')); } catch { return null; }
+  });
+  const [loading] = useState(false);
 
   const login = async (email, password) => {
-    try {
-      const response = await axios.post('/api/auth/login', { email, password });
-      const { token } = response.data;
-      localStorage.setItem('token', token);
-      const decoded = jwtDecode(token);
-      setUser(decoded);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      return true;
-    } catch (error) {
-      console.error('Login error', error);
-      throw new Error(error.response?.data?.error || 'Login failed');
-    }
+    const found = MOCK_AUTH_USERS.find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (!found) throw new Error('No account found with that email');
+    localStorage.setItem('sb_user', JSON.stringify(found));
+    setUser(found);
+    return true;
   };
 
   const register = async (name, email, password, role) => {
-    try {
-      await axios.post('/api/auth/register', { name, email, password, role });
-      return await login(email, password);
-    } catch (error) {
-      console.error('Registration error', error);
-      throw new Error(error.response?.data?.error || 'Registration failed');
-    }
+    const newUser = { id: `u${Date.now()}`, name, email, role: role || 'CUSTOMER', bio: '', location: '' };
+    localStorage.setItem('sb_user', JSON.stringify(newUser));
+    setUser(newUser);
+    return true;
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem('sb_user');
     setUser(null);
-    delete axios.defaults.headers.common['Authorization'];
-  };
-
-  const value = {
-    user,
-    login,
-    register,
-    logout,
-    loading
   };
 
   return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
+    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+      {children}
     </AuthContext.Provider>
   );
 }

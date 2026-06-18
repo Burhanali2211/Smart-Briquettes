@@ -36,3 +36,5 @@ src/assets/*.jpg
 *.njsproj
 *.sln
 *.sw?
+
+.vercel
