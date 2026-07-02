@@ -75,7 +75,7 @@ export default function CustomerDashboard() {
             {activeTab === 'orders' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 {orders.map(o => (
-                  <div key={o.id} style={{ background: '#fff', border: '1px solid #eaeaea', borderRadius: '12px', padding: '2rem', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+                  <div key={o.id} style={{ background: '#fff', border: '1px solid #eaeaea', borderRadius: '12px', padding: 'clamp(1.2rem, 3vw, 2rem)', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid #eaeaea' }}>
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
@@ -93,7 +93,7 @@ export default function CustomerDashboard() {
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
                       {(o.expand?.orderItems || []).map(item => (
                         <div key={item.id} style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                          <div style={{ width: '60px', height: '60px', background: '#f8f9fa', border: '1px solid #eaeaea', borderRadius: '8px' }}></div>
+                          <div style={{ width: '60px', height: '60px', background: '#f8f9fa', border: '1px solid #eaeaea', borderRadius: '8px', flexShrink: 0 }}></div>
                           <div>
                             <p style={{ margin: '0 0 0.2rem 0', fontWeight: 600, color: '#000' }}>{item.expand?.product?.title}</p>
                             <p style={{ margin: 0, color: '#666', fontSize: '0.9rem' }}>Qty: {item.quantity} × ₹{item.price}</p>

@@ -81,11 +81,11 @@ const FTextarea = ({ style, ...rest }) => (
 const StatCard = ({ label, value, sub, accent }) => (
   <div style={{
     background: '#fff', border: '1px solid #eaeaea', borderRadius: '16px',
-    padding: '1.5rem', boxShadow: '0 1px 8px rgba(0,0,0,0.04)',
+    padding: 'clamp(1rem, 3vw, 1.5rem)', boxShadow: '0 1px 8px rgba(0,0,0,0.04)',
     borderLeft: `3px solid ${accent || 'var(--brand-rust)'}`,
   }}>
     <div style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-muted)', marginBottom: '0.6rem', fontFamily: 'var(--font-sans)' }}>{label}</div>
-    <div style={{ fontFamily: 'var(--font-heading)', fontSize: '2rem', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.03em', lineHeight: 1 }}>{value}</div>
+    <div style={{ fontFamily: 'var(--font-heading)', fontSize: 'clamp(1.5rem, 4vw, 2rem)', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.03em', lineHeight: 1 }}>{value}</div>
     {sub && <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>{sub}</div>}
   </div>
 );
@@ -307,7 +307,7 @@ export default function AdminDashboard() {
   // ── Tab: Overview ─────────────────────────────────────────────────────────
   const tabOverview = (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
         <StatCard label="Total Products" value={stats.products} sub="Listed on platform" accent="var(--brand-rust)" />
         <StatCard label="Total Orders" value={stats.orders} sub="All time" accent="#6366f1" />
         <StatCard label="Total Revenue" value={`₹${stats.revenue.toLocaleString()}`} sub="Gross sales" accent="#15803d" />
@@ -316,7 +316,7 @@ export default function AdminDashboard() {
 
       {/* Recent orders */}
       <div style={{ background: '#fff', border: '1px solid #eaeaea', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 1px 8px rgba(0,0,0,0.04)' }}>
-        <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ padding: 'clamp(1rem, 3vw, 1.25rem) clamp(1rem, 3vw, 1.5rem)', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', fontSize: '1rem', fontWeight: 700, letterSpacing: '-0.01em' }}>Recent Orders</h3>
           <button onClick={() => setTab('orders')} style={{ background: 'none', border: 'none', color: 'var(--brand-rust)', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>View all →</button>
         </div>
@@ -353,7 +353,7 @@ export default function AdminDashboard() {
 
       {/* Recent products */}
       <div style={{ background: '#fff', border: '1px solid #eaeaea', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 1px 8px rgba(0,0,0,0.04)' }}>
-        <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ padding: 'clamp(1rem, 3vw, 1.25rem) clamp(1rem, 3vw, 1.5rem)', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', fontSize: '1rem', fontWeight: 700, letterSpacing: '-0.01em' }}>Recent Products</h3>
           <button onClick={() => setTab('products')} style={{ background: 'none', border: 'none', color: 'var(--brand-rust)', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>Manage →</button>
         </div>
@@ -477,7 +477,7 @@ export default function AdminDashboard() {
       {filteredOrders.length === 0
         ? <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--text-muted)' }}>No orders found.</div>
         : filteredOrders.map(o => (
-          <div key={o.id} style={{ background: '#fff', border: '1px solid #eaeaea', borderRadius: '16px', padding: '1.25rem 1.5rem', boxShadow: '0 1px 8px rgba(0,0,0,0.03)' }}>
+          <div key={o.id} style={{ background: '#fff', border: '1px solid #eaeaea', borderRadius: '16px', padding: 'clamp(1rem, 3vw, 1.25rem) clamp(1rem, 3vw, 1.5rem)', boxShadow: '0 1px 8px rgba(0,0,0,0.03)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem', flexWrap: 'wrap' }}>
@@ -583,7 +583,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Account info */}
-      <div style={{ background: '#fff', border: '1px solid #eaeaea', borderRadius: '20px', padding: '1.5rem', boxShadow: '0 1px 8px rgba(0,0,0,0.04)' }}>
+      <div style={{ background: '#fff', border: '1px solid #eaeaea', borderRadius: '20px', padding: 'clamp(1.2rem, 3vw, 1.5rem)', boxShadow: '0 1px 8px rgba(0,0,0,0.04)' }}>
         <h3 style={{ margin: '0 0 1rem', fontFamily: 'var(--font-heading)', fontSize: '1.05rem', fontWeight: 700, letterSpacing: '-0.02em' }}>Account Info</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {[['Name', user.name], ['Email', user.email], ['Role', user.role]].map(([k, v]) => (
@@ -596,7 +596,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Danger zone */}
-      <div style={{ background: '#fff', border: '1px solid #fecaca', borderRadius: '20px', padding: '1.5rem' }}>
+      <div style={{ background: '#fff', border: '1px solid #fecaca', borderRadius: '20px', padding: 'clamp(1.2rem, 3vw, 1.5rem)' }}>
         <h3 style={{ margin: '0 0 0.75rem', fontFamily: 'var(--font-heading)', fontSize: '1.05rem', fontWeight: 700, color: '#e03131' }}>Danger Zone</h3>
         <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Logging out will end your current session.</p>
         <button onClick={logout} style={{ padding: '0.7rem 1.5rem', background: '#fff1f1', color: '#e03131', border: '1px solid #fecaca', borderRadius: '100px', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: '0.875rem' }}>

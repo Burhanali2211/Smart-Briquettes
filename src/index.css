@@ -1,17 +1,36 @@
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --bg-light: #f7f7f5;
-  --bg-card: #ffffff;
-  --text-main: #0a0a0a;
-  --text-muted: #525252;
+  /* Material Design 3 (Material You) Theme Tokens - Light Mode */
+  --md-sys-color-primary: #C05640;
+  --md-sys-color-on-primary: #FFFFFF;
+  --md-sys-color-primary-container: #FFDAD4;
+  --md-sys-color-on-primary-container: #3B0905;
+  
+  --md-sys-color-secondary: #77574E;
+  --md-sys-color-on-secondary: #FFFFFF;
+  --md-sys-color-secondary-container: #FFDAD3;
+  --md-sys-color-on-secondary-container: #2C150F;
 
-  --brand-rust: #C05640;
-  --brand-rust-dark: #8E3E2D;
-  --brand-rust-light: #F4E3DF;
+  --md-sys-color-background: #FDFBFA;
+  --md-sys-color-on-background: #1D1B1A;
+  
+  --md-sys-color-surface: #FDFBFA;
+  --md-sys-color-on-surface: #1D1B1A;
+  
+  --md-sys-color-surface-variant: #F5EAE7;
+  --md-sys-color-on-surface-variant: #53433F;
+  
+  --md-sys-color-outline: #85736E;
+  
+  --md-sys-color-surface-container-highest: #E6DFDC;
+  --md-sys-color-surface-container-high: #ECE5E2;
+  --md-sys-color-surface-container: #F2EBE8;
+  --md-sys-color-surface-container-low: #F8F1EE;
+  --md-sys-color-surface-container-lowest: #FFFFFF;
 
-  --font-heading: 'Bricolage Grotesque', sans-serif;
-  --font-sans: 'DM Sans', sans-serif;
+  --font-heading: 'Outfit', sans-serif;
+  --font-sans: 'Inter', sans-serif;
 }
 
 * {
@@ -22,172 +41,223 @@
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--bg-light);
-  color: var(--text-main);
+  background-color: var(--md-sys-color-background);
+  color: var(--md-sys-color-on-background);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   position: relative;
+  /* Add padding bottom on mobile to accommodate bottom nav */
+  padding-bottom: 0;
 }
 
-/* Remove the noisy paper texture for a cleaner, Awwwards-minimalist look */
+@media (max-width: 900px) {
+  body {
+    padding-bottom: 80px; /* Space for bottom nav */
+  }
+}
 
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
-  color: inherit;
-  line-height: 1.08;
+  color: var(--md-sys-color-on-background);
+  line-height: 1.1;
   font-weight: 700;
-  letter-spacing: -0.025em;
-  font-variation-settings: 'opsz' 32;
+  letter-spacing: -0.02em;
 }
 
 p {
-  line-height: 1.72;
-  color: var(--text-muted);
-  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 1rem;
   font-weight: 400;
-  letter-spacing: 0.01em;
 }
 
 .overline-text {
   font-family: var(--font-sans);
-  color: var(--text-muted);
-  font-size: 0.8rem;
+  color: var(--md-sys-color-primary);
+  font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.1em;
   line-height: 1;
 }
 
-/* Utilities */
-.rust-gradient-text {
-  background: linear-gradient(135deg, var(--brand-rust-dark) 0%, var(--brand-rust) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  display: inline-block;
+/* M3 Specific Utilities */
+.m3-card {
+  background-color: var(--md-sys-color-surface-container-low);
+  border-radius: 24px;
+  padding: 1.5rem;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  overflow: hidden;
 }
 
-.rust-splash {
-  position: relative;
-  display: inline-block;
-  z-index: 1;
+.m3-card:hover {
+  background-color: var(--md-sys-color-surface-container);
 }
 
-.rust-splash::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 120%;
-  height: 120%;
-  background: radial-gradient(circle, rgba(192, 86, 64, 0.08) 0%, transparent 70%);
-  filter: blur(20px);
-  z-index: -1;
-  border-radius: 50%;
+.m3-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 16px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.m3-chip:hover {
+  background-color: var(--md-sys-color-surface-container-highest);
+}
+
+.m3-chip.active {
+  background-color: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
 }
 
 .container {
-  max-width: 1200px; /* Wider for modern layouts */
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 1rem;
 }
 
 .section {
-  padding: 10rem 0; /* Massive breathing room */
+  padding: 4rem 0;
   position: relative;
 }
 
-.story-section {
-  display: flex;
-  gap: 6rem;
-  align-items: center;
-  min-height: 70vh;
-}
-
-.story-section.reverse {
-  flex-direction: row-reverse;
-}
-
-@media (max-width: 900px) {
-  .story-section, .story-section.reverse {
-    flex-direction: column;
-    gap: 3rem;
-  }
+@media (min-width: 900px) {
   .section {
-    padding: 5rem 0; /* Less padding on mobile */
+    padding: 6rem 0;
   }
 }
 
-@media (max-width: 480px) {
-  .container {
-    padding: 0 1.5rem;
-  }
-}
-
-.footer-links-grid {
-  display: flex;
-  gap: 6rem;
-  flex-wrap: wrap;
-}
-
-@media (max-width: 768px) {
-  .footer-links-grid {
-    gap: 3rem;
-  }
-}
-
-.mobile-only {
-  display: none !important;
-}
-
-@media (max-width: 900px) {
-  .desktop-only {
-    display: none !important;
-  }
-  .mobile-only {
-    display: flex !important;
-  }
-}
-
-/* Modern, minimal buttons */
+/* Modern, M3 buttons */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--text-main);
-  color: #fff;
-  padding: 16px 40px;
-  border-radius: 100px; /* Pill shape */
-  font-size: 0.95rem;
+  background-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  padding: 0 24px;
+  height: 48px;
+  border-radius: 24px; /* Fully rounded pill */
+  font-size: 1rem;
   font-family: var(--font-sans);
   font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
   text-decoration: none;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  border: 1px solid var(--text-main);
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
 }
 
 .btn-primary:hover {
-  background-color: transparent;
-  color: var(--text-main);
-  transform: translateY(-2px);
+  background-color: var(--md-sys-color-on-primary-container);
+  color: var(--md-sys-color-primary-container);
 }
 
-/* Responsive Dashboard Layout */
+@media (max-width: 900px) {
+  .top-navbar-desktop {
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+    padding: 0.8rem 1rem !important;
+    background: rgba(253, 251, 250, 0.95) !important;
+    backdrop-filter: blur(10px) !important;
+    border: none !important;
+    border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+  }
+  .desktop-only {
+    display: none !important;
+  }
+}
+
+@media (min-width: 901px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+
+/* Bottom Navigation (Mobile) */
+.m3-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  background-color: var(--md-sys-color-surface-container);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 1000;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -1px 3px rgba(0,0,0,0.05);
+}
+
+@media (min-width: 901px) {
+  .m3-bottom-nav {
+    display: none;
+  }
+}
+
+.m3-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--md-sys-color-on-surface-variant);
+  text-decoration: none;
+  gap: 4px;
+  flex: 1;
+  padding: 8px 0;
+  border-radius: 16px;
+  transition: background-color 0.2s;
+}
+
+.m3-nav-item.active {
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.m3-nav-icon-container {
+  width: 64px;
+  height: 32px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.m3-nav-item.active .m3-nav-icon-container {
+  background-color: var(--md-sys-color-secondary-container);
+}
+
+.m3-nav-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+}
+
+/* Dashboard Styles Preserved for other pages */
 .dashboard-layout {
   display: flex;
   height: 100vh;
   overflow: hidden;
-  background: #fff;
-  color: #000;
+  background: var(--md-sys-color-background);
+  color: var(--md-sys-color-on-background);
 }
 
 .dashboard-sidebar {
   width: 250px;
-  background: #f8f9fa;
-  border-right: 1px solid #eaeaea;
+  background: var(--md-sys-color-surface-container);
+  border-right: 1px solid var(--md-sys-color-outline);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -253,14 +323,14 @@ p {
     display: flex !important;
     align-items: center;
     justify-content: center;
-    background: #f8f9fa;
-    border: 1px solid #eaeaea;
+    background: var(--md-sys-color-surface-container);
+    border: 1px solid var(--md-sys-color-outline);
     border-radius: 8px;
     width: 40px;
     height: 40px;
     font-size: 1.2rem;
     cursor: pointer;
-    color: #000;
+    color: var(--md-sys-color-on-surface);
   }
   .dashboard-main {
     padding: 1.5rem;

@@ -218,12 +218,12 @@ export default function SellerDashboard() {
           <div style={{ 
             background: '#fff', 
             border: '1px solid #eaeaea', 
-            padding: '3rem', 
+            padding: 'clamp(1.5rem, 3vw, 3rem)', 
             borderRadius: '24px', 
             marginBottom: '3rem',
             boxShadow: '0 20px 40px rgba(0,0,0,0.05)'
           }}>
-            <h3 style={{ marginBottom: '2rem', fontSize: '1.5rem', fontFamily: 'var(--font-heading)' }}>{editingProductId ? 'Edit Listing' : 'Craft a New Listing'}</h3>
+            <h3 style={{ marginBottom: '2rem', fontSize: 'clamp(1.2rem, 3vw, 1.5rem)', fontFamily: 'var(--font-heading)' }}>{editingProductId ? 'Edit Listing' : 'Craft a New Listing'}</h3>
             
             <form onSubmit={handleAddProduct} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               
@@ -285,9 +285,9 @@ export default function SellerDashboard() {
         ) : (
           <>
             {activeTab === 'products' && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem' }}>
                 {products.map(p => (
-                  <div key={p.id} style={{ background: '#fff', border: '1px solid #eaeaea', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+                  <div key={p.id} style={{ background: '#fff', border: '1px solid #eaeaea', borderRadius: '12px', padding: 'clamp(1rem, 3vw, 1.5rem)', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
                     {p.imageUrl && <img src={p.imageUrl} alt={p.title} style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '8px', marginBottom: '1rem' }} />}
                     <h3 style={{ margin: '0 0 0.5rem 0', color: '#000' }}>{p.title}</h3>
                     <div style={{ display: 'flex', justifyContent: 'space-between', color: '#666', fontSize: '0.9rem', marginBottom: '1rem' }}>
@@ -308,7 +308,7 @@ export default function SellerDashboard() {
             {activeTab === 'orders' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {orders.map(o => (
-                  <div key={o.id} style={{ background: '#fff', border: '1px solid #eaeaea', borderRadius: '12px', padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+                  <div key={o.id} style={{ background: '#fff', border: '1px solid #eaeaea', borderRadius: '12px', padding: 'clamp(1rem, 3vw, 1.5rem)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
                         <span style={{ fontFamily: 'monospace', color: '#666' }}>#{o.id.split('-')[0]}</span>
@@ -332,7 +332,7 @@ export default function SellerDashboard() {
             )}
 
             {activeTab === 'profile' && (
-              <div style={{ background: '#fff', border: '1px solid #eaeaea', padding: '3rem', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', maxWidth: '800px' }}>
+              <div style={{ background: '#fff', border: '1px solid #eaeaea', padding: 'clamp(1.5rem, 3vw, 3rem)', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', maxWidth: '800px' }}>
                 <form onSubmit={handleUpdateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                   
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>

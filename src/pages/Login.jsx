@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 
 const fadeUpItem = {
   hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, type: 'spring' } }
 };
 
 export default function Login() {
@@ -27,45 +27,55 @@ export default function Login() {
   };
 
   return (
-    <div style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: '120px 1rem 4rem 1rem' }}>
+    <div style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: 'clamp(80px, 10vh, 120px) 1rem 4rem 1rem' }}>
       
       {/* Parallax Background */}
       <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: -2 }}>
-        <img src="/clay-molding.jpg" alt="Seller Background" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.3) blur(5px)' }} />
+        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=80" alt="Seller Background" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
       </div>
-      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(135deg, rgba(10,10,10,0.9) 0%, rgba(10,10,10,0.4) 100%)', zIndex: -1 }}></div>
+      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(135deg, rgba(253,251,250,0.9) 0%, rgba(253,251,250,0.7) 100%)', zIndex: -1 }}></div>
 
-      <motion.div initial="hidden" animate="visible" variants={fadeUpItem} style={{ 
+      <motion.div initial="hidden" animate="visible" variants={fadeUpItem} className="m3-card" style={{ 
         width: '100%', 
-        maxWidth: '600px', 
-        background: 'rgba(255, 255, 255, 0.05)', 
-        backdropFilter: 'blur(30px)', 
-        WebkitBackdropFilter: 'blur(30px)',
-        border: '1px solid rgba(255, 255, 255, 0.1)', 
-        borderRadius: '32px', 
-        padding: 'clamp(2rem, 5vw, 4rem)',
-        color: '#fff',
-        boxShadow: '0 20px 50px rgba(0,0,0,0.3)'
+        maxWidth: '480px', 
+        padding: 'clamp(2rem, 5vw, 3rem)',
+        background: 'var(--md-sys-color-surface)',
+        border: '1px solid var(--md-sys-color-outline-variant)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center'
       }}>
-        <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: 'clamp(2rem, 4vw, 2.5rem)', fontWeight: 700, marginBottom: '1rem', lineHeight: 1.1, textAlign: 'center' }}>
+        <div style={{ width: '48px', height: '48px', background: 'var(--md-sys-color-primary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
+          <span style={{ color: 'var(--md-sys-color-on-primary)', fontFamily: 'var(--font-heading)', fontSize: '1.5rem', fontWeight: 700 }}>S</span>
+        </div>
+        <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: 'clamp(1.8rem, 4vw, 2.2rem)', fontWeight: 700, marginBottom: '0.5rem', lineHeight: 1.2, textAlign: 'center', color: 'var(--md-sys-color-on-background)' }}>
           Welcome Back
         </h1>
-        <p style={{ color: '#ccc', fontSize: '1.05rem', marginBottom: '2.5rem', textAlign: 'center' }}>
+        <p style={{ color: 'var(--md-sys-color-on-surface-variant)', fontSize: '1rem', marginBottom: '2.5rem', textAlign: 'center' }}>
           Log in to your Smart Briqquetes account.
         </p>
         
-        {error && <div style={{ background: 'rgba(255, 0, 0, 0.1)', color: '#ff6b6b', padding: '1rem', borderRadius: '16px', marginBottom: '1.5rem', textAlign: 'center', border: '1px solid rgba(255, 0, 0, 0.2)' }}>{error}</div>}
+        {error && <div style={{ background: 'var(--md-sys-color-error-container)', color: 'var(--md-sys-color-on-error-container)', padding: '1rem', borderRadius: '12px', marginBottom: '1.5rem', width: '100%', textAlign: 'center', border: '1px solid rgba(255,0,0,0.1)' }}>{error}</div>}
         
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', width: '100%' }}>
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
               <input 
                 type="email" 
                 required
                 placeholder="Email Address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                style={{ padding: '1.2rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none', width: '100%' }} 
+                style={{ 
+                  height: '56px', padding: '0 1rem', 
+                  background: 'var(--md-sys-color-surface-container)', 
+                  border: '1px solid var(--md-sys-color-outline-variant)', 
+                  borderRadius: '12px', color: 'var(--md-sys-color-on-surface)', 
+                  fontSize: '1rem', outline: 'none', width: '100%',
+                  fontFamily: 'var(--font-sans)', transition: 'border-color 0.2s'
+                }} 
+                onFocus={(e) => e.target.style.borderColor = 'var(--md-sys-color-primary)'}
+                onBlur={(e) => e.target.style.borderColor = 'var(--md-sys-color-outline-variant)'}
               />
               
               <input 
@@ -74,37 +84,42 @@ export default function Login() {
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                style={{ padding: '1.2rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none', width: '100%' }} 
+                style={{ 
+                  height: '56px', padding: '0 1rem', 
+                  background: 'var(--md-sys-color-surface-container)', 
+                  border: '1px solid var(--md-sys-color-outline-variant)', 
+                  borderRadius: '12px', color: 'var(--md-sys-color-on-surface)', 
+                  fontSize: '1rem', outline: 'none', width: '100%',
+                  fontFamily: 'var(--font-sans)', transition: 'border-color 0.2s'
+                }} 
+                onFocus={(e) => e.target.style.borderColor = 'var(--md-sys-color-primary)'}
+                onBlur={(e) => e.target.style.borderColor = 'var(--md-sys-color-outline-variant)'}
               />
             </div>
           </motion.div>
           
           <button 
             type="submit" 
+            className="btn-primary"
             style={{ 
               width: '100%', 
-              padding: '1.2rem', 
-              background: '#fff', 
-              color: 'var(--text-main)', 
-              border: 'none', 
-              borderRadius: '16px', 
+              height: '56px',
               fontSize: '1.1rem', 
-              fontWeight: 700, 
-              marginTop: '1rem', 
-              cursor: 'pointer',
-              transition: 'transform 0.2s ease'
+              marginTop: '1rem'
             }}
-            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
             Log in
           </button>
         </form>
         
-        <p style={{ textAlign: 'center', marginTop: '2.5rem', color: '#ccc' }}>
-          Don't have an account? <Link to="/register" style={{ color: '#fff', textDecoration: 'none', fontWeight: 600 }}>Sign up</Link>
+        <p style={{ textAlign: 'center', marginTop: '2.5rem', color: 'var(--md-sys-color-on-surface-variant)' }}>
+          Don't have an account? <Link to="/register" style={{ color: 'var(--md-sys-color-primary)', textDecoration: 'none', fontWeight: 600 }}>Sign up</Link>
         </p>
       </motion.div>
+
+      <style>{`
+        input::placeholder { color: var(--md-sys-color-on-surface-variant); opacity: 0.7; }
+      `}</style>
     </div>
   );
 }

@@ -1,4 +1,5 @@
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Link } from 'react-router-dom';
+import { Home as HomeIcon, Compass, ShoppingBag, User } from 'lucide-react';
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 
@@ -15,13 +16,15 @@ const fadeUpItem = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
 };
 import Navbar from './components/Navbar';
-import Storefronts from './pages/Storefronts';
+import Home from './pages/Home';
 import Checkout from './pages/Checkout';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import About from './pages/About';
 import Dashboard from './pages/Dashboard/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
 import SmoothScroll from './components/SmoothScroll';
 
 function ScrollToTopEffect() {
@@ -39,15 +42,17 @@ function App() {
 
   return (
     <AuthProvider>
-      <SmoothScroll>
-        <ScrollToTopEffect />
+      <CartProvider>
+        <SmoothScroll>
+          <ScrollToTopEffect />
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative' }}>
           {!hideNavbar && <Navbar />}
 
           <div style={{ flex: 1 }}>
             <Routes>
-              <Route path="/" element={<Storefronts />} />
-              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
@@ -72,12 +77,13 @@ function App() {
                   {/* Links Columns */}
                   <motion.div variants={fadeUpItem} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
                     <div className="overline-text" style={{ color: 'var(--text-main)' }}>Platform</div>
-                    <a href="/storefronts" style={{ color: 'var(--text-muted)', textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }}>Marketplace</a>
-                    <a href="/register" style={{ color: 'var(--text-muted)', textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }}>Become a Seller</a>
+                    <Link to="/" style={{ color: 'var(--text-muted)', textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }}>Marketplace</Link>
+                    <Link to="/register" style={{ color: 'var(--text-muted)', textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }}>Become a Seller</Link>
                   </motion.div>
 
                   <motion.div variants={fadeUpItem} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
                     <div className="overline-text" style={{ color: 'var(--text-main)' }}>Company</div>
+                    <Link to="/about" style={{ color: 'var(--text-muted)', textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }}>Our Story</Link>
                     <a href="#" style={{ color: 'var(--text-muted)', textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }}>Contact Support</a>
                   </motion.div>
 
@@ -114,8 +120,38 @@ function App() {
               }}></div>
             </footer>
           )}
+
+          {!hideNavbar && (
+            <nav className="m3-bottom-nav">
+              <Link to="/" className="m3-nav-item active">
+                <div className="m3-nav-icon-container">
+                  <HomeIcon size={24} />
+                </div>
+                <span className="m3-nav-label">Home</span>
+              </Link>
+              <Link to="/about" className="m3-nav-item">
+                <div className="m3-nav-icon-container">
+                  <Compass size={24} />
+                </div>
+                <span className="m3-nav-label">About</span>
+              </Link>
+              <Link to="/checkout" className="m3-nav-item">
+                <div className="m3-nav-icon-container">
+                  <ShoppingBag size={24} />
+                </div>
+                <span className="m3-nav-label">Cart</span>
+              </Link>
+              <Link to="/login" className="m3-nav-item">
+                <div className="m3-nav-icon-container">
+                  <User size={24} />
+                </div>
+                <span className="m3-nav-label">Profile</span>
+              </Link>
+            </nav>
+          )}
         </div>
-      </SmoothScroll>
+        </SmoothScroll>
+      </CartProvider>
     </AuthProvider>
   );
 }
